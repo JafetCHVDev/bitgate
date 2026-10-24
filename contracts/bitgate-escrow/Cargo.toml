@@ -1,0 +1,18 @@
+[package]
+name = "bitgate-escrow"
+version = "0.1.0"
+edition = "2021"
+description = "P2P Bitcoin-for-USDC escrow on Soroban, settled by a Writz bitcoin-spv proof"
+license = "Apache-2.0"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+doctest = false
+
+[dependencies]
+soroban-sdk = { workspace = true }
+writz-spv-client = { workspace = true }
+
+[dev-dependencies]
+soroban-sdk = { workspace = true, features = ["testutils"] }

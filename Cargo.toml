@@ -1,0 +1,24 @@
+[workspace]
+resolver = "2"
+members = ["contracts/*"]
+
+[workspace.dependencies]
+soroban-sdk = "26"
+# Writz's own Soroban client for bitcoin-spv (typed client, result and error
+# types, on-chain output parser). Release pending on crates.io, so it is pinned
+# to a commit of the Writz repository.
+writz-spv-client = { git = "https://github.com/WritzProtocol/writz", rev = "67692a5196be603287c900c9d7c6f8bca3d3e1ca" }
+
+[profile.release]
+opt-level = "z"
+overflow-checks = true
+debug = 0
+strip = "symbols"
+debug-assertions = false
+panic = "abort"
+codegen-units = 1
+lto = true
+
+[profile.release-with-logs]
+inherits = "release"
+debug-assertions = true
