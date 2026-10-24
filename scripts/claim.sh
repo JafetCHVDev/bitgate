@@ -18,7 +18,7 @@ SOURCE="${3:-bitgate-admin}"
 CONF=$(stellar contract invoke --id "$ESCROW" --source-account "$SOURCE" --network testnet --send=no -- \
   get_trade --trade_id "$TRADE_ID" | python -c "import json,sys;print(json.load(sys.stdin)['offer_id'])" |
   xargs -I{} stellar contract invoke --id "$ESCROW" --source-account "$SOURCE" --network testnet --send=no -- \
-  get_offer --offer_id {} | python -c "import json,sys;print(min(json.load(sys.stdin)['min_confirmations'],20))")
+  get_offer --offer_id {} | python -c "import json,sys;print(min(json.load(sys.stdin)['min_confirmations'],20))" | tr -d '\r')
 
 PROOF=$(curl -sf "$RELAYER/spv-proof/$TXID?confirmations=$CONF") || {
   echo "Writz relayer has no proof yet:" >&2
@@ -30,7 +30,7 @@ PROOF=$(curl -sf "$RELAYER/spv-proof/$TXID?confirmations=$CONF") || {
 read -r BLOCK_HASH MERKLE TX_INDEX RAW_TX < <(printf '%s' "$PROOF" | python -c "
 import json, sys
 a = json.load(sys.stdin)['sorobanArgs']
-print(a['block_hash'], json.dumps(a['merkle_proof'], separators=(',', ':')), a['tx_index'], a['raw_tx'])")
+print(a['block_hash'], json.dumps(a['merkle_proof'], separators=(',', ':')), a['tx_index'], a['raw_tx'])" | tr -d '\r')
 
 stellar contract invoke --id "$ESCROW" --source-account "$SOURCE" --network testnet -- \
   claim --trade_id "$TRADE_ID" --block_hash "$BLOCK_HASH" --merkle_proof "$MERKLE" \
