@@ -80,7 +80,8 @@ export function OfferPage({ id }: { id: bigint }) {
           </Row>
           {rep && (
             <Row label={t("Reputación on-chain", "On-chain reputation")}>
-              {rep.settledAsMaker} {t("ventas", "sales")} · {rep.settledAsTaker} {t("compras", "buys")} · {fmtToken(rep.volume)} USDC
+              {rep.settledAsMaker} {rep.settledAsMaker === 1 ? t("venta", "sale") : t("ventas", "sales")} · {rep.settledAsTaker}{" "}
+              {rep.settledAsTaker === 1 ? t("compra", "buy") : t("compras", "buys")} · {fmtToken(rep.volume)} USDC
               {rep.expiredAsTaker > 0 && (
                 <>
                   {" "}
