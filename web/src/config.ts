@@ -7,13 +7,16 @@ export const CONFIG = {
   horizonUrl: "https://horizon-testnet.stellar.org",
 
   /** BitGate escrow, deployed from contracts/bitgate-escrow. */
-  escrowId: "CC6IZOGIOU2ME5INRC6EYCB7CDMQ5E7XKY2RT3YLRFIA3IVZACLF3XMT",
+  escrowId: "CDKVJOISYM4BWV2UQKNPBZJBPK7DX3GMK2RPZNYW2LUG7GMPNEH42TVT",
   /** Writz bitcoin-spv light client, tracking Bitcoin signet. */
   spvId: "CAHHY4S4WCIFU4LBSKBI3IP6A4QYR2COV6EACDEBXGPJFDWBJWGOMCLP",
   /** Circle testnet USDC (Stellar Asset Contract), the asset Writz Lend uses. */
   usdcId: "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA",
   usdcIssuer: "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
   usdcDecimals: 7,
+  /** Reflector BTC/USD oracle, the one Writz Lend reads (14 decimals). */
+  oracleId: "CCYOZJCOPG34LLQQ7N24YXBM7LL62R7ONMZ3G6WZAAYPB5OYKOMJRN63",
+  oracleDecimals: 14,
 
   /** Writz relayer: ready-made SPV proofs for signet transactions. */
   writzRelayer: "https://api.testnet.writz.xyz",

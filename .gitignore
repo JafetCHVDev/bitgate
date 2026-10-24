@@ -6,3 +6,4 @@ dist/
 *.local.json
 .secrets/
 test_snapshots/
+*.tsbuildinfo
