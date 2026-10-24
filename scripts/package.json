@@ -1,0 +1,13 @@
+{
+  "name": "bitgate-scripts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "wallet": "node signet-wallet.mjs"
+  },
+  "dependencies": {
+    "bitcoinjs-lib": "7.0.2",
+    "ecpair": "3.0.2",
+    "tiny-secp256k1": "2.2.4"
+  }
+}
