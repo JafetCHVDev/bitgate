@@ -8,7 +8,7 @@ pub struct Config {
     pub admin: Address,
     /// The Writz `bitcoin-spv` light client every claim is proven against.
     pub spv: Address,
-    /// Receives the protocol fee on each settled trade.
+    /// Receives the accrued protocol fees on `withdraw_fees`.
     pub treasury: Address,
     /// Protocol fee on each settled trade, in basis points of the token amount.
     pub fee_bps: u32,
@@ -114,4 +114,6 @@ pub enum DataKey {
     /// A Bitcoin txid (internal byte order) that already settled a trade.
     UsedTxid(BytesN<32>),
     Reputation(Address),
+    /// Protocol fees accrued in a token and not yet withdrawn.
+    Fees(Address),
 }

@@ -178,6 +178,24 @@ impl BitGateEscrow {
         save_config(&env, &config);
     }
 
+    /// Sends the protocol fees accrued in `token` to the treasury and returns
+    /// the amount. Admin only.
+    pub fn withdraw_fees(env: Env, token: Address) -> i128 {
+        let config = config(&env);
+        config.admin.require_auth();
+        let key = DataKey::Fees(token.clone());
+        let accrued: i128 = env.storage().persistent().get(&key).unwrap_or(0);
+        if accrued > 0 {
+            env.storage().persistent().set(&key, &0i128);
+            token::TokenClient::new(&env, &token).transfer(
+                &env.current_contract_address(),
+                &config.treasury,
+                &accrued,
+            );
+        }
+        accrued
+    }
+
     // ── Maker ────────────────────────────────────────────────────────────────
 
     /// Locks `amount` of `token` from `maker` in a new offer and returns its id.
@@ -471,12 +489,21 @@ impl BitGateEscrow {
             r.volume += trade.amount;
         });
 
-        let token_client = token::TokenClient::new(&env, &offer.token);
-        let escrow = env.current_contract_address();
-        token_client.transfer(&escrow, &trade.taker, &(trade.amount - fee + trade.bond));
+        // The fee stays in the escrow until `withdraw_fees`: a treasury that
+        // cannot receive the token (no trustline, frozen) must never block a
+        // taker's settlement.
         if fee > 0 {
-            token_client.transfer(&escrow, &config.treasury, &fee);
+            let fees_key = DataKey::Fees(offer.token.clone());
+            let accrued: i128 = env.storage().persistent().get(&fees_key).unwrap_or(0);
+            env.storage().persistent().set(&fees_key, &(accrued + fee));
+            bump_persistent(&env, &fees_key);
         }
+
+        token::TokenClient::new(&env, &offer.token).transfer(
+            &env.current_contract_address(),
+            &trade.taker,
+            &(trade.amount - fee + trade.bond),
+        );
 
         TradeSettled {
             trade_id,
@@ -552,6 +579,14 @@ impl BitGateEscrow {
     /// The trade a Bitcoin txid (internal byte order) settled, if any.
     pub fn trade_for_txid(env: Env, btc_txid: BytesN<32>) -> Option<u64> {
         env.storage().persistent().get(&DataKey::UsedTxid(btc_txid))
+    }
+
+    /// Protocol fees accrued in `token` and not yet withdrawn.
+    pub fn accrued_fees(env: Env, token: Address) -> i128 {
+        env.storage()
+            .persistent()
+            .get(&DataKey::Fees(token))
+            .unwrap_or(0)
     }
 
     pub fn get_reputation(env: Env, address: Address) -> Reputation {

@@ -191,8 +191,10 @@ fn settles_a_real_signet_payment() {
     assert_eq!(settled.sats_paid, Some(PAID_SATS));
     assert_eq!(settled.fee, fee);
     assert_eq!(s.balance(&s.taker), 110 * USDC - fee);
-    assert_eq!(s.balance(&s.treasury), fee);
-    assert_eq!(s.balance(&s.escrow.address), 90 * USDC);
+    // The fee accrues in the escrow; settlement never touches the treasury.
+    assert_eq!(s.balance(&s.treasury), 0);
+    assert_eq!(s.escrow.accrued_fees(&s.usdc.address), fee);
+    assert_eq!(s.balance(&s.escrow.address), 90 * USDC + fee);
 
     let txid = settled.btc_txid.unwrap();
     // The txid in internal order is the explorer's txid reversed.
@@ -427,8 +429,9 @@ fn cancel_refunds_the_unreserved_part_and_keeps_the_open_trade_valid() {
 
     // The taker who already reserved can still settle.
     s.mine_payment_block();
-    s.claim(trade_id, &s.proof()).unwrap();
-    assert_eq!(s.balance(&s.escrow.address), 0);
+    let settled = s.claim(trade_id, &s.proof()).unwrap();
+    // Only the accrued protocol fee is left in the escrow.
+    assert_eq!(s.balance(&s.escrow.address), settled.fee);
 }
 
 #[test]
@@ -718,4 +721,23 @@ fn constructor_rejects_a_fee_above_the_cap() {
             101u32,
         ),
     );
+}
+
+#[test]
+fn accrued_fees_are_withdrawn_to_the_treasury_by_the_admin() {
+    let s = Setup::new();
+    let trade_id = s.escrow.take(&s.offer(), &s.taker, &(10 * USDC));
+    s.mine_payment_block();
+    s.claim(trade_id, &s.proof()).unwrap();
+    let fee = 10 * USDC * FEE_BPS as i128 / 10_000;
+    assert_eq!(s.escrow.accrued_fees(&s.usdc.address), fee);
+
+    s.env.set_auths(&[]);
+    assert!(s.escrow.try_withdraw_fees(&s.usdc.address).is_err());
+
+    s.env.mock_all_auths();
+    assert_eq!(s.escrow.withdraw_fees(&s.usdc.address), fee);
+    assert_eq!(s.balance(&s.treasury), fee);
+    assert_eq!(s.escrow.accrued_fees(&s.usdc.address), 0);
+    assert_eq!(s.escrow.withdraw_fees(&s.usdc.address), 0);
 }
