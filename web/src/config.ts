@@ -32,5 +32,5 @@ export const CONFIG = {
     btcBlock: (height: number) => `https://mempool.space/signet/block/${height}`,
   },
 
-  repo: "https://github.com/JafetCHVDev/bitgate",
+  repo: "https://github.com/ZephyRoute/bitgate",
 } as const;

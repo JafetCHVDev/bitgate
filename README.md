@@ -3,7 +3,7 @@
 **Peer-to-peer Bitcoin-for-USDC escrow on Stellar, settled by a Writz `bitcoin-spv` proof.**
 No bridge, no custodian, no wrapped BTC, and neither side has to send first.
 
-[Live app](https://jafetchvdev.github.io/bitgate/) ·
+[Live app](https://zephyroute.github.io/bitgate/) ·
 [Escrow on stellar.expert](https://stellar.expert/explorer/testnet/contract/CDKVJOISYM4BWV2UQKNPBZJBPK7DX3GMK2RPZNYW2LUG7GMPNEH42TVT) ·
 Built for the Pura Vida Ideathon 2026 (Genesis track, Writz integration bounty)
 
